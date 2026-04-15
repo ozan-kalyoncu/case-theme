@@ -8,6 +8,13 @@
  * ------------------------------------------------------------
  */
 {
-  "sections": {},
-  "order": []
+  "sections": {
+    "featured-collection-grid": {
+      "type": "featured-collection-grid",
+      "settings": {}
+    }
+  },
+  "order": [
+    "featured-collection-grid"
+  ]
 }
