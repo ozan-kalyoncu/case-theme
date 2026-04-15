@@ -1,0 +1,575 @@
+{%- liquid
+  # Colors
+  assign section_background = section.settings.section_background
+  assign text_color = section.settings.text_color
+  assign muted_text_color = section.settings.muted_text_color
+  assign border_color = section.settings.border_color
+  assign card_background = section.settings.card_background
+  assign chip_background = section.settings.chip_background
+  assign chip_text_color = section.settings.chip_text_color
+
+  assign badge_new_background = section.settings.badge_new_background
+  assign badge_new_text = section.settings.badge_new_text
+  assign badge_sale_background = section.settings.badge_sale_background
+  assign badge_sale_text = section.settings.badge_sale_text
+  assign badge_low_background = section.settings.badge_low_background
+  assign badge_low_text = section.settings.badge_low_text
+
+  # Schema Settings
+  assign featured_collection = section.settings.collection
+  assign products_limit = section.settings.products_limit
+  assign heading = section.settings.heading
+  assign eyebrow_text = section.settings.eyebrow_text
+  assign link_label = section.settings.link_label
+  assign link_url = section.settings.link_url
+  assign show_view_all = section.settings.show_view_all
+  assign empty_state_text = section.settings.empty_state_text
+  assign low_stock_threshold = section.settings.low_stock_threshold
+  assign subtitle_source = section.settings.subtitle_source
+  assign show_subtitle = section.settings.show_subtitle
+  assign show_quick_add = section.settings.show_quick_add
+  assign image_fit = section.settings.image_fit
+  assign use_video = section.settings.use_video
+  assign show_swatches = section.settings.show_swatches
+  assign swatch_option_name = section.settings.swatch_option_name
+  assign card_radius = section.settings.card_radius
+  assign section_padding_top = section.settings.section_padding_top
+  assign section_padding_bottom = section.settings.section_padding_bottom
+  assign heading_emphasis = section.settings.heading_emphasis
+
+  if link_url == blank and featured_collection != blank
+    assign link_url = featured_collection.url
+  endif
+
+  assign active_filter_tag = blank
+-%}
+
+{%- style -%}
+  .featured-collection-grid-section--{{ section.id }} {
+    --section-padding-top: {{ section_padding_top }}px;
+    --section-padding-bottom: {{ section_padding_bottom }}px;
+    --card-radius: {{ card_radius }}px;
+    --fcg-image-fit: {{ image_fit }};
+
+    --fcg-section-bg: {{ section_background }};
+    --fcg-text: {{ text_color }};
+    --fcg-muted: {{ muted_text_color }};
+    --fcg-border: {{ border_color }};
+    --fcg-card-bg: {{ card_background }};
+    --fcg-chip-bg: {{ chip_background }};
+    --fcg-chip-text: {{ chip_text_color }};
+
+    --fcg-badge-new-bg: {{ badge_new_background }};
+    --fcg-badge-new-text: {{ badge_new_text }};
+    --fcg-badge-sale-bg: {{ badge_sale_background }};
+    --fcg-badge-sale-text: {{ badge_sale_text }};
+    --fcg-badge-low-bg: {{ badge_low_background }};
+    --fcg-badge-low-text: {{ badge_low_text }};
+
+    padding-top: var(--section-padding-top);
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: var(--section-padding-bottom);
+    background: var(--fcg-section-bg);
+    color: var(--fcg-text);
+  }
+  .featured-collection-grid-section--{{ section.id }} {
+    --fcg-border-soft: color-mix(in srgb, var(--fcg-border) 55%, transparent);
+    --fcg-text-soft: color-mix(in srgb, var(--fcg-text) 72%, transparent);
+    --fcg-muted-soft: color-mix(in srgb, var(--fcg-muted) 78%, transparent);
+    --fcg-chip-text-soft: color-mix(in srgb, var(--fcg-chip-text) 72%, transparent);
+  }
+  .featured-collection-grid-section {
+    display: block;
+  }
+{%- endstyle -%}
+
+{{- 'featured-collection-grid.css' | asset_url | stylesheet_tag -}}
+
+<featured-collection-grid
+  class="featured-collection-grid-section featured-collection-grid-section--{{ section.id }}"
+  data-section-id="{{ section.id }}"
+>
+  <div class="featured-collection-grid-section__inner page-width">
+    <div class="featured-collection-grid-section__header section-header">
+      <div class="featured-collection-grid-section__header-left section__header-left">
+        {%- if eyebrow_text != blank -%}
+          <p class="featured-collection-grid-section__eyebrow eyebrow">
+            {{ eyebrow_text | escape }}
+          </p>
+        {%- endif -%}
+
+        {%- if heading != blank -%}
+          <h2 class="featured-collection-grid-section__heading section-title">
+            {%- if heading_emphasis != blank and heading contains heading_emphasis -%}
+              {{ heading | replace: heading_emphasis, '<em>' | append: heading_emphasis | append: '</em>' }}
+            {%- else -%}
+              {{ heading }}
+            {%- endif -%}
+          </h2>
+        {%- endif -%}
+      </div>
+
+      {%- if show_view_all and link_label != blank and link_url != blank -%}
+        <a class="featured-collection-grid-section__link view-all" href="{{ link_url }}">
+          {{- link_label | escape -}}
+        </a>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <div class="featured-collection-grid-section__filters filters" role="tablist" aria-label="{{ 'sections.featured_collection.filters' | t | default: 'Collection filters' }}">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign filter_label = block.settings.label
+            assign filter_tag = block.settings.tag
+            assign is_default = block.settings.default_active
+
+            if is_default and active_filter_tag == blank
+              assign active_filter_tag = filter_tag | handleize
+            endif
+          -%}
+
+          {%- if filter_label != blank and filter_tag != blank -%}
+            <button
+              type="button"
+              class="featured-collection-grid-section__chip chip {%- if is_default %} is-active{% endif %}"
+              data-filter-chip
+              data-filter-value="{{ filter_tag | handleize }}"
+              data-block-id="{{ block.id }}"
+              aria-pressed="{% if is_default %}true{% else %}false{% endif %}"
+              {{ block.shopify_attributes }}
+            >
+              {{ filter_label | escape }}
+            </button>
+          {%- endif -%}
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+
+    <div class="featured-collection-grid-section__content">
+      <div
+        class="featured-collection-grid-section__grid"
+        data-product-grid
+      >
+        {%- if featured_collection != blank and featured_collection.products_count > 0 -%}
+          {%- for product in featured_collection.products limit: products_limit -%}
+            {%- liquid
+              assign normalized_tags = ''
+              assign filter_values = 'all'
+
+              for tag in product.tags
+                assign normalized_tag = tag | handleize
+                assign normalized_tags = normalized_tags | append: '|' | append: normalized_tag
+                assign filter_values = filter_values | append: ',' | append: normalized_tag
+              endfor
+
+              assign normalized_filter_values = ',' | append: filter_values | append: ','
+              assign active_filter_token = ',' | append: active_filter_tag | append: ','
+              assign column_hidden_class = blank
+
+              if active_filter_tag != blank and active_filter_tag != 'all'
+                unless normalized_filter_values contains active_filter_token
+                  assign column_hidden_class = ' is-hidden'
+                endunless
+              endif
+            -%}
+            <div class="product-card__column {{- column_hidden_class }}">
+                {% render 'featured-collection-grid-product-card',
+                    product: product,
+                    section: section,
+                    filter_values: filter_values,
+                    normalized_tags: normalized_tags,
+                    low_stock_threshold: low_stock_threshold,
+                    subtitle_source: subtitle_source,
+                    show_quick_add: show_quick_add,
+                    show_subtitle: show_subtitle,
+                    show_swatches: show_swatches,
+                    swatch_option_name: swatch_option_name,
+                    use_video: use_video
+                %}
+            </div>
+          {%- endfor -%}
+        <div
+          class="featured-collection-grid-section__empty {%- if featured_collection != blank and featured_collection.products_count > 0 %} is-hidden{% endif %}"
+          data-empty-state
+        >
+          <p>{{ empty_state_text | escape }}</p>
+        </div>
+        {%- else -%}
+          {%- for i in (1..4) -%}
+            <div class="card featured-collection-card--placeholder">
+              <div class="card__img">
+                <div class="card__img-placeholder">
+                  <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="8" y="14" width="32" height="26" rx="2" stroke="white" stroke-width="2"/>
+                    <path d="M16 14V11a8 8 0 0116 0v3" stroke="white" stroke-width="2"/>
+                  </svg>
+                </div>
+                <span class="badge badge--new">New</span>
+              </div>
+              <div class="card__body">
+                <div class="card__meta">
+                  <div>
+                    <p class="card__name">{{ 'onboarding.product_title' | t | default: 'Product title' }}</p>
+                    <p class="card__sub">{{ 'onboarding.product_vendor' | t | default: 'Product subtitle' }}</p>
+                  </div>
+                  <div class="card__price">
+                    <p class="card__price">
+                      <span class="price-current">
+                        {{ 1999 | money }}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div class="rating">
+                    <div class="star-rating" style="--star-rating: 4.5;"></div>
+                    <span class="rating-count">{{ 'products.product.reviews' | t: count: 128 }}</span>
+                </div>
+              </div>
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</featured-collection-grid>
+
+<script src="{{ 'featured-collection-grid.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Featured collection grid",
+  "tag": "section",
+  "class": "section-featured-collection-grid",
+  "settings": [
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow_text",
+      "label": "Eyebrow text",
+      "default": "Koleksiyonumuz"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Öne Çıkan Ürünler"
+    },
+    {
+      "type": "text",
+      "id": "heading_emphasis",
+      "label": "Heading emphasis text",
+      "info": "If this text exists inside the heading, it will be wrapped with an em tag.",
+      "default": "Ürünler"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show view all link",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "link_label",
+      "label": "Link label",
+      "default": "Tümünü gör →"
+    },
+    {
+      "type": "url",
+      "id": "link_url",
+      "label": "Link URL",
+      "info": "If left blank, the selected collection URL will be used."
+    },
+    {
+      "type": "range",
+      "id": "products_limit",
+      "label": "Products to show",
+      "min": 4,
+      "max": 16,
+      "step": 1,
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "section_background",
+      "label": "Section background",
+      "default": "#F1EFE8"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#1A1A18"
+    },
+    {
+      "type": "color",
+      "id": "muted_text_color",
+      "label": "Muted text color",
+      "default": "#888780"
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#D3D1C7"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "chip_background",
+      "label": "Chip background",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "chip_text_color",
+      "label": "Chip text color",
+      "default": "#1A1A18"
+    },
+    {
+      "type": "header",
+      "content": "Badge colors"
+    },
+    {
+      "type": "color",
+      "id": "badge_new_background",
+      "label": "New badge background",
+      "default": "#1A1A18"
+    },
+    {
+      "type": "color",
+      "id": "badge_new_text",
+      "label": "New badge text",
+      "default": "#F1EFE8"
+    },
+    {
+      "type": "color",
+      "id": "badge_sale_background",
+      "label": "Sale badge background",
+      "default": "#D85A30"
+    },
+    {
+      "type": "color",
+      "id": "badge_sale_text",
+      "label": "Sale badge text",
+      "default": "#FAECE7"
+    },
+    {
+      "type": "color",
+      "id": "badge_low_background",
+      "label": "Low stock badge background",
+      "default": "#FAC775"
+    },
+    {
+      "type": "color",
+      "id": "badge_low_text",
+      "label": "Low stock badge text",
+      "default": "#633806"
+    },
+    {
+      "type": "header",
+      "content": "Card content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_quick_add",
+      "label": "Show quick add to cart button",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_subtitle",
+      "label": "Show subtitle",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "subtitle_source",
+      "label": "Subtitle source",
+      "options": [
+        {
+          "value": "variant",
+          "label": "Selected or first available variant title"
+        },
+        {
+          "value": "type",
+          "label": "Product type"
+        },
+        {
+          "value": "vendor",
+          "label": "Vendor"
+        }
+      ],
+      "default": "variant"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_swatches",
+      "label": "Show swatches",
+      "default": true
+    },
+    {
+      "type": "textarea",
+      "id": "color_swatches",
+      "label": "Custom Colors",
+      "info": "Follow the format: <Color>: <HEX Color>. Example: Deep Blue: #0A0052. Each custom color must be on a new line."
+    },
+    {
+      "type": "text",
+      "id": "swatch_option_name",
+      "label": "Swatch option name",
+      "default": "Color",
+      "info": "Example: Color, Colour, Renk"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_card_rating",
+      "label": "Show star rating",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "low_stock_threshold",
+      "label": "Low stock threshold",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "select",
+      "id": "image_fit",
+      "label": "Image fit",
+      "options": [
+        { "value": "cover", "label": "Cover" },
+        { "value": "contain", "label": "Contain" }
+      ],
+      "default": "cover"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_video",
+      "label": "Use video",
+      "info": "Shows video only if it is set as the product’s featured media."
+    },
+    {
+      "type": "text",
+      "id": "empty_state_text",
+      "label": "Empty state text",
+      "default": "Bu filtre için ürün bulunamadı."
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "card_radius",
+      "label": "Card corner radius",
+      "min": 0,
+      "max": 32,
+      "step": 2,
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "section_padding_top",
+      "label": "Top spacing",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "section_padding_bottom",
+      "label": "Bottom spacing",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "filter",
+      "name": "Filter chip",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Tümü"
+        },
+        {
+          "type": "text",
+          "id": "tag",
+          "label": "Tag",
+          "info": "Products with this tag will be shown for this filter. Use 'all' for the all-products chip.",
+          "default": "all"
+        },
+        {
+          "type": "checkbox",
+          "id": "default_active",
+          "label": "Set as default active filter",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Featured collection grid",
+      "blocks": [
+        {
+          "type": "filter",
+          "settings": {
+            "label": "Tümü",
+            "tag": "all",
+            "default_active": true
+          }
+        },
+        {
+          "type": "filter",
+          "settings": {
+            "label": "Yeni Gelenler",
+            "tag": "new"
+          }
+        },
+        {
+          "type": "filter",
+          "settings": {
+            "label": "İndirimde",
+            "tag": "sale"
+          }
+        },
+        {
+          "type": "filter",
+          "settings": {
+            "label": "Çok Satanlar",
+            "tag": "best-seller"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

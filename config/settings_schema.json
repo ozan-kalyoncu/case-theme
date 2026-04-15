@@ -1,0 +1,20 @@
+[
+    {
+        "name": "theme_info",
+        "theme_name": "Case Theme",
+        "theme_version": "1.0.0",
+        "theme_author": "Ozan",
+        "theme_documentation_url": "https:\/\/help.shopify.com\/manual\/online-store\/themes",
+        "theme_support_url": "https:\/\/www.support.com\/"
+    },
+    {
+        "name": "Favicon",
+        "settings": [
+            {
+                "type": "image_picker",
+                "id": "favicon",
+                "label": "Favicon"
+            }
+        ]
+    }
+]

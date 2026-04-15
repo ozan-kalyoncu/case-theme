@@ -1,0 +1,246 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_media = current_variant.featured_media | default: product.featured_media
+  assign is_video = false
+
+  if featured_media != blank and featured_media.media_type != 'image'
+    if featured_media.media_type == 'video' and use_video
+      assign is_video = true
+      assign featured_media = featured_media
+    else
+      assign featured_media = featured_media.preview_image
+    endif
+  endif
+
+  assign current_price = current_variant.price | default: product.price
+  assign current_compare_at_price = current_variant.compare_at_price
+  assign current_inventory_quantity = current_variant.inventory_quantity | default: 0
+
+  assign badge_text = blank
+  assign badge_modifier = blank
+  assign subtitle_text = blank
+
+  assign normalized_swatch_option_name = swatch_option_name | downcase | strip
+  assign swatch_option_index = blank
+
+  for option in product.options_with_values
+    assign option_name = option.name | downcase | strip
+
+    if option_name == normalized_swatch_option_name
+      assign swatch_option_index = forloop.index0
+      break
+    endif
+  endfor
+
+  assign normalized_tags = normalized_tags
+
+  if current_compare_at_price > current_price
+    assign sale_difference = current_compare_at_price | minus: current_price
+    assign sale_percentage = sale_difference | times: 100 | divided_by: current_compare_at_price
+    assign badge_modifier = 'sale'
+    assign badge_text = '-' | append: sale_percentage | append: '%'
+  elsif normalized_tags contains '|new'
+    assign badge_modifier = 'new'
+    assign badge_text = 'Yeni'
+  elsif current_variant.inventory_management != blank and current_variant.available and current_inventory_quantity < low_stock_threshold
+    assign badge_modifier = 'low'
+    assign badge_text = 'Son ' | append: current_inventory_quantity
+  endif
+  
+  assign is_vendor = false
+  case subtitle_source
+    when 'type'
+      assign subtitle_text = product.type
+    when 'vendor'
+      assign subtitle_text = product.vendor
+      assign is_vendor = true
+    else
+      assign subtitle_text = current_variant.title
+  endcase
+
+  if subtitle_text == 'Default Title'
+    assign subtitle_text = blank
+  endif
+-%}
+
+<div class="card" data-filters="{{ filter_values }}">
+  <div class="card__img">
+    <div class="card__img-placeholder">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="14" width="32" height="26" rx="2" stroke="white" stroke-width="2"/>
+        <path d="M16 14V11a8 8 0 0116 0v3" stroke="white" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <div class="card__images">
+      {%- if is_video and use_video -%}
+        {{ featured_media | video_tag: controls: false, loading: 'lazy', loop: true, autoplay: true, image_size: '720x' }}
+      {%- elsif featured_media != blank -%}
+        <img
+          srcset="
+            {%- if featured_media.width >= 720 -%}{{ featured_media | image_url: width: 720 }} 720w,{%- endif -%}
+            {%- if featured_media.width >= 940 -%}{{ featured_media | image_url: width: 940 }} 940w,{%- endif -%}
+            {%- if featured_media.width >= 1066 -%}{{ featured_media | image_url: width: 1066 }} 1066w,{%- endif -%}
+            {{ featured_media | image_url }} {{ featured_media.width }}w
+          "
+          src="{{ featured_media | image_url: width: 533 }}"
+          sizes="auto"
+          alt="{{ featured_media.alt | escape }}"
+          class="motion-reduce"
+          loading="lazy"
+          width="{{ featured_media.width }}"
+          height="{{ featured_media.height }}"
+        >
+      {%- endif -%}
+    </div>
+
+    {%- if badge_text != blank and badge_modifier != blank -%}
+      <span class="badge badge--{{ badge_modifier }}">{{ badge_text }}</span>
+    {%- endif -%}
+
+    <button class="wishlist" 
+      type="button" 
+      aria-label="Add to wishlist"
+      data-wishlist-button
+      data-product-id="{{ product.id }}"
+      data-product-title="{{ product.title | escape }}"
+      aria-label="Add to wishlist"
+      aria-pressed="false"
+    >
+      <svg viewBox="0 0 24 24">
+        <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+      </svg>
+    </button>
+    {%- if show_quick_add -%}
+    <button class="add-btn" 
+      type="button"
+      data-quick-add
+      data-product-id="{{ current_variant.id }}"
+      data-product-title="{{ product.title | escape }}"
+      data-quantity="1">{{ 'products.product.add_to_cart' | t }}</button>
+    {%- endif -%}
+  </div>
+
+  <div class="card__body">
+    <div class="card__meta">
+      <div>
+        <p class="card__name">{{ product.title }}</p>
+        {%- if subtitle_text != blank and show_subtitle -%}
+          <{%-if is_vendor -%}a href="{{ product.vendor | url_for_vendor }}"{% else %}p{% endif %} class="card__sub">{{ subtitle_text }}</{%-if is_vendor -%}a{% else %}p{% endif %}>
+        {%- endif -%}
+      </div>
+
+      <div class="card__price">
+        {%- if current_compare_at_price > current_price -%}
+          <span class="price-old">{{ current_compare_at_price | money }}</span>
+        {%- endif -%}
+        <span class="price-current">{{ current_price | money }}</span>
+      </div>
+    </div>
+
+    {%- unless product.has_only_default_variant -%}
+      {%- if show_swatches -%}
+        <div class="swatches">
+          {%- liquid
+            assign custom_colors = section.settings.color_swatches | newline_to_br | split: '<br />'
+            assign keys = ''
+            assign values = ''
+
+            for color in custom_colors
+              assign key = color | split: ':' | first | rstrip
+              assign value = color | split: ':' | last | lstrip
+              assign keys = keys | append: ',' | append: key
+              assign values = values | append: ',' | append: value
+            endfor
+
+            assign keys = keys | remove_first: ',' | strip_newlines | downcase | split: ','
+            assign values = values | remove_first: ',' | split: ','
+          -%}
+
+          {%- for option in product.options_with_values -%}
+            {%- liquid
+              assign option_name = option.name | downcase
+            -%}
+
+            {% if option_name == normalized_swatch_option_name %}
+              {%- if option.values.size > 0 -%}
+                {%- for value in option.values limit: 5 -%}
+                  {%- liquid
+                    assign color_value = value | downcase | escape
+                    assign bg_value = ''
+
+                    for key in keys
+                      if key == color_value
+                        assign color_value = values[forloop.index0]
+                      endif
+                    endfor
+
+                    if color_value contains '.'
+                      assign bg_value = color_value | file_url
+                      assign color_value = 'var(--background-image)'
+                    endif
+
+                    if value.swatch.image
+                      assign bg_value = value.swatch.image | image_url: width: 100
+                    elsif value.swatch.color
+                      assign color_value = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+                    endif
+
+                    assign variant_image = blank
+
+                    for variant in product.variants
+                      if swatch_option_index != blank and variant.options[swatch_option_index] == value
+                        if variant.featured_image
+                          assign variant_image = variant.featured_image
+                        elsif variant.featured_media
+                          assign variant_image = variant.featured_media
+                        endif
+                        break
+                      endif
+                    endfor
+
+                    if variant_image == blank
+                      assign variant_image = featured_media
+                    endif
+                  -%}
+
+                  {% if variant_image != blank %}
+                    {% assign image_sizes = '720x0,940x0,1066x0' | split: ',' %}
+                    {%- capture srcset -%}
+                      {%- for size in image_sizes -%}
+                        {%- liquid
+                          assign size_arr = size | split: 'x'
+                          assign width = size_arr[0]
+                          assign srcset_size = width | append: 'x'
+
+                          if size_arr[1] != '0'
+                            assign srcset_size = size
+                          endif
+                        -%}
+                        {{- variant_image | img_url: srcset_size, crop: 'center' }} {{ width }}w,
+                      {%- endfor -%}
+                    {%- endcapture -%}
+                    {%- assign last_slice = srcset | size | minus: 1 -%}
+                  {% endif %}
+
+                  <div
+                    class="swatch{%- if forloop.first %} active{% endif %}"
+                    data-srcset="{{- srcset | slice: 0, last_slice | strip_newlines -}}"
+                    style="--swatch-color: {{ color_value }};{%- if bg_value != blank %}--background-image:url('{{ bg_value }}');{% endif %}"
+                  ></div>
+                {%- endfor -%}
+              {%- endif -%}
+            {% endif %}
+          {%- endfor -%}
+        </div>
+      {%- endif -%}
+    {%- endunless -%}
+
+    {%- if section.settings.show_product_card_rating and product.metafields.theme.rating.value != blank -%}
+      <div class="rating">
+          <div class="star-rating" style="--star-rating: {{ product.metafields.theme.rating.value.rating }};"></div>
+          <span class="rating-count">{{ 'products.product.reviews' | t: count: product.metafields.theme.rating_count }}</span>
+      </div>
+    {%- endif -%}
+  </div>
+</div>

@@ -32,6 +32,8 @@
     <meta name="description" content="{{ page_description | escape }}">
 {% endif %}
 
+{{ 'app.css' | asset_url | stylesheet_tag }}
+
 {{ content_for_header }}
 {% render 'head-variables' %}
 

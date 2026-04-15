@@ -1,0 +1,16 @@
+{
+    "general": {
+
+    },
+    "onboarding": {
+        "product_vendor": "Product vendor",
+        "product_title": "Example product title",
+        "page_title": "Page title"
+    },
+    "products": {
+        "product": {
+            "add_to_cart": "Add to cart",
+            "reviews": "({{ count }})"
+        }
+    }
+}

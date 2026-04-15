@@ -1,0 +1,17 @@
+<script>
+    window.theme = window.theme || {};
+    theme = {
+    settings: {
+        product_id: {% if product %}{{ product.id }}{% else %}false{% endif %}
+    },
+    routes: {
+        shop_url: '{{ shop.url }}',
+        root_url: '{{ routes.root_url }}',
+        cart_url: '{{ routes.cart_url }}',
+        cart_add_url: '{{ routes.cart_add_url }}',
+    },
+    variantStrings: {
+        addToCart: `{{ 'products.product.add_to_cart' | t }}`
+    }
+    };
+</script>
