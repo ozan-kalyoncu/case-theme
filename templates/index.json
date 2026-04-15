@@ -41,7 +41,7 @@
           "settings": {
             "label": "New",
             "tag": "new",
-            "default_active": true
+            "default_active": false
           }
         },
         "filter_y7cAET": {
