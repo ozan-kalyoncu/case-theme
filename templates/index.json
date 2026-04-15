@@ -25,7 +25,7 @@
           "settings": {
             "label": "Premium",
             "tag": "Premium",
-            "default_active": false
+            "default_active": true
           }
         },
         "filter_iPrrTD": {
@@ -41,7 +41,7 @@
           "settings": {
             "label": "New",
             "tag": "new",
-            "default_active": false
+            "default_active": true
           }
         },
         "filter_y7cAET": {
