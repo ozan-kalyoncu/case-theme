@@ -21,5 +21,10 @@
             "add_to_cart": "Add to cart",
             "reviews": "({{ count }})"
         }
+    },
+    "sections": {
+        "featured_collection_grid": {
+            "filters": "Collection filters"
+        }
     }
 }

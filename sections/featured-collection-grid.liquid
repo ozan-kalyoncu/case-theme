@@ -118,7 +118,7 @@
     </div>
 
     {%- if section.blocks.size > 0 -%}
-      <div class="featured-collection-grid-section__filters filters" role="tablist" aria-label="{{ 'sections.featured_collection.filters' | t | default: 'Collection filters' }}">
+      <div class="featured-collection-grid-section__filters filters" role="tablist" aria-label="{{ 'sections.featured_collection_grid.filters' | t | default: 'Collection filters' }}">
         {%- for block in section.blocks -%}
           {%- liquid
             assign filter_label = block.settings.label
