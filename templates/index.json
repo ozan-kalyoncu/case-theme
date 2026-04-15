@@ -11,7 +11,92 @@
   "sections": {
     "featured-collection-grid": {
       "type": "featured-collection-grid",
-      "settings": {}
+      "blocks": {
+        "filter_Uz46tW": {
+          "type": "filter",
+          "settings": {
+            "label": "Tümü",
+            "tag": "all",
+            "default_active": false
+          }
+        },
+        "filter_V8TCGr": {
+          "type": "filter",
+          "settings": {
+            "label": "Premium",
+            "tag": "Premium",
+            "default_active": false
+          }
+        },
+        "filter_iPrrTD": {
+          "type": "filter",
+          "settings": {
+            "label": "Accessory",
+            "tag": "accessory",
+            "default_active": false
+          }
+        },
+        "filter_JqjfAa": {
+          "type": "filter",
+          "settings": {
+            "label": "New",
+            "tag": "new",
+            "default_active": false
+          }
+        },
+        "filter_y7cAET": {
+          "type": "filter",
+          "settings": {
+            "label": "Best Seller",
+            "tag": "best-seller",
+            "default_active": false
+          }
+        }
+      },
+      "block_order": [
+        "filter_Uz46tW",
+        "filter_V8TCGr",
+        "filter_iPrrTD",
+        "filter_JqjfAa",
+        "filter_y7cAET"
+      ],
+      "settings": {
+        "collection": "automated-collection",
+        "eyebrow_text": "Koleksiyonumuz",
+        "heading": "Öne Çıkan Ürünler",
+        "heading_emphasis": "Ürünler",
+        "show_view_all": true,
+        "link_label": "Tümünü gör →",
+        "link_url": "",
+        "products_limit": 8,
+        "section_background": "#f1efe8",
+        "text_color": "#1a1a18",
+        "muted_text_color": "#888780",
+        "border_color": "#d3d1c7",
+        "card_background": "#ffffff",
+        "chip_background": "#ffffff",
+        "chip_text_color": "#1a1a18",
+        "badge_new_background": "#1a1a18",
+        "badge_new_text": "#f1efe8",
+        "badge_sale_background": "#d85a30",
+        "badge_sale_text": "#faece7",
+        "badge_low_background": "#fac775",
+        "badge_low_text": "#633806",
+        "show_quick_add": true,
+        "show_subtitle": true,
+        "subtitle_source": "variant",
+        "show_swatches": true,
+        "color_swatches": "",
+        "swatch_option_name": "Color",
+        "show_product_card_rating": true,
+        "low_stock_threshold": 5,
+        "image_fit": "cover",
+        "use_video": false,
+        "empty_state_text": "Bu filtre için ürün bulunamadı.",
+        "card_radius": 14,
+        "section_padding_top": 80,
+        "section_padding_bottom": 80
+      }
     }
   },
   "order": [
