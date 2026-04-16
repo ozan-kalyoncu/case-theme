@@ -124,7 +124,7 @@
   <div class="card__body">
     <div class="card__meta">
       <div>
-        <p class="card__name">{{ product.title }}</p>
+        <a class="card__name" href="{{ product.url }}" title="{{ product.title }}">{{ product.title }}</a>
         {%- if subtitle_text != blank and show_subtitle -%}
           <{%-if is_vendor -%}a href="{{ product.vendor | url_for_vendor }}"{% else %}p{% endif %} class="card__sub">{{ subtitle_text }}</{%-if is_vendor -%}a{% else %}p{% endif %}>
         {%- endif -%}

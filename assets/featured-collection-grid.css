@@ -280,6 +280,7 @@
     font-weight: 500;
     color: var(--fcg-text);
     line-height: 1.3;
+    text-decoration: none;
   }
 
   .section-featured-collection-grid .card__sub {
