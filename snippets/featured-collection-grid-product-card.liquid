@@ -131,9 +131,11 @@
       </div>
 
       <div class="card__price">
-        {%- if current_compare_at_price > current_price -%}
-          <span class="price-old">{{ current_compare_at_price | money }}</span>
-        {%- endif -%}
+        {% unless product.price_varies == false and product.compare_at_price_varies %}
+          {%- if current_compare_at_price > current_price -%}
+            <span class="price-old">{{ current_compare_at_price | money }}</span>
+          {%- endif -%}
+        {% endunless %}
         <span class="price-current">{{ current_price | money }}</span>
       </div>
     </div>
