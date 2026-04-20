@@ -93,7 +93,7 @@
         "image_fit": "cover",
         "use_video": false,
         "empty_state_text": "Bu filtre için ürün bulunamadı.",
-        "card_radius": 14,
+        "card_radius": 16,
         "section_padding_top": 80,
         "section_padding_bottom": 80
       }
